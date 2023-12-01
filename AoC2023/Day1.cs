@@ -40,13 +40,9 @@ public class Day1 : ExerciseBase
 
             for (int i = 0; i < line.Length; i++)
             {
-                var numberFound = -1;
+                var numberFound = char.IsNumber(line[i]) ? (int)char.GetNumericValue(line[i]) : GetStartingNumberNameNumericValue(line[i..]);
 
-                if(char.IsNumber(line[i]))
-                {
-                    numberFound = (int)char.GetNumericValue(line[i]);
-                }
-                else if((numberFound = GetStartingNumberNameNumericValue(line[i..])) < 0)
+                if(numberFound < 0)
                 {
                     continue;
                 }
