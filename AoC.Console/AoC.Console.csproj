@@ -4,6 +4,7 @@
     <ProjectReference Include="..\AoC2015\AoC2015.csproj" />
     <ProjectReference Include="..\AoC2023\AoC2023.csproj" />
     <ProjectReference Include="..\AoC2016\AoC2016.csproj" />
+    <ProjectReference Include="..\AoC2017\AoC2017.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
