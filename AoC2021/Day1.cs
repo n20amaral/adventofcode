@@ -14,7 +14,7 @@ public class Day1 : ExerciseBase
 
         var line = string.Empty;
         var timesIncreased = 0;
-        var previous = int.Parse(_reader.ReadLine());
+        var previous = int.Parse(_reader.ReadLine() ?? line);
 
         while ((line = _reader.ReadLine()) != null)
         {
