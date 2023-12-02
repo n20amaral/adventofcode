@@ -15,7 +15,7 @@ public class Day1Tests
     }
 
     [Theory]
-    [InlineData("", "")]
+    [InlineData("199\n200\n208\n210\n200\n207\n240\n269\n260\n263", "5")]
     public void SolvePart2Test(string input, string expected)
     {
         var reader = new StringReader(input);
