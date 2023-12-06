@@ -15,122 +15,78 @@ public class Day5 : ExerciseBase
     {
         ResetReader();
 
-        var seedMappings = _reader
-            .ReadLine()?.Split(": ")[1].Split(" ")
-            .Select(s => new SeedMappping(long.Parse(s)))
-            .ToList();
+        var seeds = _reader.ReadLine()?.Substring("seeeds:".Length).Split(' ').Select(long.Parse).ToArray();
+        _ = seeds ?? throw new InvalidDataException("No seeds found"); 
+        
+        // var processed = new bool[seeds.Count];
+        // string? line;
+        // while((line = _reader.ReadLine()) != null)
+        // {
+        //     if(string.IsNullOrWhiteSpace(line) || !char.IsNumber(line[0]))
+        //     {
+        //         processed = new bool[seeds.Count];
+        //         continue;
+        //     }
 
-        _ = seedMappings ?? throw new Exception("No seeds data found.");
+        //     var parts = line.Split(' ');
+        //     var length = long.Parse(parts[2]);
+        //     var fromMin = long.Parse(parts[1]);
+        //     var fromMax = fromMin + length;
+        //     var to = long.Parse(parts[0]);
+        //     var delta = to - fromMin;
 
-        MapSeeds(seedMappings);
+            
+        //     for (int i = 0; i < seeds.Count; i++)
+        //     {
+        //         if(processed[i] || seeds[i] < fromMin || seeds[i] > fromMax)
+        //         {
+        //             continue;
+        //         }
+                
+        //         seeds[i] += delta;
+        //         processed[i] = true;
+        //     }
+        // }
 
-        var lowestLocation = seedMappings.MinBy(m => m.Location)?.Location ?? -1;
+        ProcessSeeds(seeds, _reader.ReadToEnd().Split("\r\n"));
 
-        return lowestLocation.ToString();
+        return seeds.Min().ToString();
     }
 
     public override string SolvePart2()
     {
-        ResetReader();
-
         return string.Empty;
     }
 
-
-    private void MapSeeds(List<SeedMappping> seedMappings)
+    private void ProcessSeeds(long[] seeds, string[] lines)
     {
-        string? line;
-        string source = string.Empty;
-        string destination = string.Empty;
-
-        while ((line = _reader.ReadLine()) != null)
+        var processed = new bool[seeds.Length];
+        
+        foreach(var line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if(string.IsNullOrWhiteSpace(line) || !char.IsNumber(line[0]))
             {
-                // blank line means a mapping is complete
-                if (!string.IsNullOrWhiteSpace(source) && !string.IsNullOrWhiteSpace(destination))
-                {
-                    UpdateUnmapped(source, destination, seedMappings);
-                }
-
+                processed = new bool[seeds.Length];
                 continue;
             }
 
-            // extract mapping info
-            if (!char.IsNumber(line[0]))
+            var parts = line.Split(' ');
+            var length = long.Parse(parts[2]);
+            var fromMin = long.Parse(parts[1]);
+            var fromMax = fromMin + length;
+            var to = long.Parse(parts[0]);
+            var delta = to - fromMin;
+
+            for (int i = 0; i < seeds.Length; i++)
             {
-                var mapDetails = line.Substring(0, line.IndexOf(' ')).Split("-");
-                source = mapDetails[0].Capitalize();
-                destination = mapDetails[2].Capitalize();
-                continue;
-            }
-
-            // extract mapping data
-            var data = line.Split(" ");
-            var length = long.Parse(data[2]);
-            var sourceStart = long.Parse(data[1]);
-            var sourceEnd = sourceStart + length - 1;
-            var destinationStart = long.Parse(data[0]);
-            var delta = destinationStart - sourceStart;
-
-            var mappingType = typeof(SeedMappping);
-            var sourceProperty = mappingType.GetProperty(source, typeof(long)) ?? throw new Exception($"No {source} property found.");
-            var destinationProperty = mappingType.GetProperty(destination, typeof(long)) ?? throw new Exception($"No {destination} property found.");
-
-            foreach (var mapping in seedMappings)
-            {
-                var sourceValue = (long?)sourceProperty.GetValue(mapping) ?? -1;
-
-                // not in range for current mapping
-                if (sourceValue < sourceStart || sourceValue > sourceEnd)
+                if(processed[i] || seeds[i] < fromMin || seeds[i] > fromMax)
                 {
                     continue;
                 }
-
-                destinationProperty.SetValue(mapping, sourceValue + delta);
+                
+                seeds[i] += delta;
+                processed[i] = true;
             }
         }
-
-        // update last mapping, becaus missing blank line at the end 
-        UpdateUnmapped(source, destination, seedMappings);
     }
-
-    private void UpdateUnmapped(string source, string destination, List<SeedMappping> seedMappings)
-    {
-        var mappingType = typeof(SeedMappping);
-        var sourceProperty = mappingType.GetProperty(source, typeof(long)) ?? throw new Exception($"No {source} property found.");
-        var destinationProperty = mappingType.GetProperty(destination, typeof(long)) ?? throw new Exception($"No {destination} property found.");
-
-        foreach (var mapping in seedMappings)
-        {
-            if ((long?)destinationProperty.GetValue(mapping) != -1)
-            {
-                continue;
-            }
-
-            destinationProperty.SetValue(mapping, sourceProperty.GetValue(mapping));
-        }
-    }
-
-    private record SeedMappping(long Seed, long Soil = -1, long Fertilizer = -1, long Water = -1, long Light = -1, long Temperature = -1, long Humidity = -1, long Location = -1);
-
-    private record SeedRange(long Start, long End);
-
-    private class Mapping(long min, long max, long delta)
-    {
-        public long Min { get; } = min;
-        public long Max { get; } = max;
-        public long Delta { get; } = delta;
-        public List<Mapping> Children { get; } = new List<Mapping>();
-    }
-}
-
-internal static class StringExtensions
-{
-    public static string Capitalize(this string s) => s switch
-    {
-        null => throw new ArgumentNullException(nameof(s)),
-        "" => throw new ArgumentException($"{nameof(s)} cannot be empty", nameof(s)),
-        _ => s[0].ToString().ToUpper(CultureInfo.InvariantCulture) + s[1..]
-    };
 }
