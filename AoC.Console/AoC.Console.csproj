@@ -12,6 +12,12 @@
     <ProjectReference Include="..\AoC2022\AoC2022.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="**\input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
